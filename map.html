@@ -1,0 +1,83 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Google COVID-19 Maps</title>
+        <style>
+            #map {
+                height: 100%;
+                width : 800px;
+                margin: 20px;
+
+            }
+
+            html, body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+        </style>
+
+    </head>
+    <body>
+    <script>
+            function initMap() {
+                var country='{{dic}}'
+                country=country.toString().replace(/&#039;/g,'"')
+                var obj=JSON.parse( country);
+                country_list=[obj.location,obj.latitude,obj.longitude,obj.date,obj.total_cases,obj.total_cases_per_million,
+                                obj.total_deaths,obj.total_deaths_per_million]
+                console.log(country_list)
+
+                var mapOptions = {
+                    zoom: 5,
+                    center: new google.maps.LatLng(country_list[1], country_list[2]),
+                    mapTypeId: 'roadmap',
+                    streetViewControl: false
+                };
+                var map = new google.maps.Map(document.getElementById('map'), mapOptions);
+
+                plotMarker(country_list,map)
+
+            }
+            function plotMarker(country,map) {
+                // Create the marker
+                var marker = new google.maps.Marker({
+                                position: {lat: Number(country[1]),lng: Number(country[2])},
+                                title: country[0],
+                                map: map,
+                                // streetViewControl: false
+                            });
+
+                // Create Info window and destroy any other open infowindows
+                google.maps.event.addListener(marker, "click", function() {
+                    var country1='{{c1}}'
+                    country1=country1.toString().replace(/&#039;/g,'"')
+                    var obj1=JSON.parse( country1);
+                    country1_list=[obj1.location,obj1.total_cases]
+                    var country2='{{c2}}'
+                    country2=country2.toString().replace(/&#039;/g,'"')
+                    var obj2=JSON.parse( country2);
+                    country2_list=[obj2.location,obj2.total_cases]
+                if (infowindow)
+                    infowindow.close();
+                    var infowindow = new google.maps.InfoWindow({
+                            content:'<h2>'+ country[0]+ " ("+country[3]+" )"+'</h2>'  + '<br>'+
+                                '<b>'+"Total COVID-19 Cases: "+'</b>'+ country[4]+'<br>'+'<b>'+"COVID-19 Cases per million: "+'</b>'+country[5] +
+                                '<br>'+'<b>'+"Total COVID-19 Deaths: "+'</b>'+country[6]+'<br>'+'<b>'+"COVID-19 Deaths per million: "+'</b>'+country[7]+
+                                    '<br>'+'<b>'+"Some other interesting information about "+country1_list[0]+' Total Cases: '+'</b>'+ country1_list[1]+
+                                    '<br>'+'<b>'+"Some other interesting information about "+country2_list[0]+' Total Cases: '+'</b>'+ country2_list[1]
+
+
+                            });
+                infowindow.open(map, marker);
+                });
+            }
+        </script>
+    <div id="map"></div>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDfJx9Jg_vKJs0dhbhGBzXuai4CSORjUt0&callback=initMap">
+    </script> 
+
+    </body>
+    </html>
